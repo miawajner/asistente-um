@@ -35,8 +35,11 @@
       box-shadow: 0 6px 22px rgba(0, 45, 114, 0.55);
       background: #003A8C;
     }
-    .chat-toggle svg { width: 28px; height: 28px; fill: #fff; transition: transform 0.3s; }
-    .chat-toggle.open svg { transform: rotate(90deg); }
+    .chat-toggle .icon-chat { display: block; }
+    .chat-toggle .icon-close { display: none; }
+    .chat-toggle.open .icon-chat { display: none; }
+    .chat-toggle.open .icon-close { display: block; }
+    .chat-toggle svg { width: 26px; height: 26px; fill: #fff; }
 
     /* ── Chat panel ── */
     .chat-panel {
@@ -44,7 +47,7 @@
       bottom: 98px;
       right: 24px;
       width: 385px;
-      height: 530px;
+      height: 540px;
       background: #fff;
       border-radius: 18px;
       box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
@@ -73,27 +76,22 @@
       flex-shrink: 0;
     }
     .chat-avatar {
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.18);
       border: 2px solid rgba(255, 255, 255, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: #fff;
       letter-spacing: 0.04em;
       flex-shrink: 0;
     }
     .chat-header-info { flex: 1; min-width: 0; }
-    .chat-header h3 {
-      color: #fff;
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 3px;
-    }
+    .chat-header h3 { color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 3px; }
     .chat-status {
       display: flex;
       align-items: center;
@@ -105,19 +103,16 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.3);
       flex-shrink: 0;
       transition: background 0.3s;
     }
-    .status-dot.active   { background: #4ade80; }
-    .status-dot.connecting {
-      background: #fbbf24;
-      animation: blink 1s ease-in-out infinite;
-    }
+    .status-dot.active     { background: #4ade80; }
+    .status-dot.connecting { background: #fbbf24; animation: blink 1s ease-in-out infinite; }
 
     @keyframes blink {
       0%, 100% { opacity: 1; }
-      50%       { opacity: 0.35; }
+      50%       { opacity: 0.3; }
     }
 
     .chat-close {
@@ -144,7 +139,7 @@
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       scroll-behavior: smooth;
       background: #F6F8FC;
     }
@@ -152,6 +147,7 @@
     .messages::-webkit-scrollbar-track { background: transparent; }
     .messages::-webkit-scrollbar-thumb { background: #c5cfe0; border-radius: 4px; }
 
+    /* Welcome */
     .welcome {
       display: flex;
       flex-direction: column;
@@ -159,7 +155,7 @@
       justify-content: center;
       text-align: center;
       flex: 1;
-      padding: 20px;
+      padding: 24px 16px;
       gap: 10px;
       color: #6b7280;
       font-size: 13.5px;
@@ -175,24 +171,16 @@
       justify-content: center;
     }
     .welcome-icon svg { width: 26px; height: 26px; fill: #fff; }
-    .welcome strong { color: #002D72; font-size: 15px; }
+    .welcome strong { color: #002D72; font-size: 15px; display: block; margin-bottom: 2px; }
 
+    /* Message bubbles */
     .message {
       display: flex;
       flex-direction: column;
-      max-width: 84%;
+      max-width: 82%;
     }
     .message.user  { align-self: flex-end; }
     .message.agent { align-self: flex-start; }
-
-    .bubble {
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-size: 13.5px;
-      line-height: 1.55;
-    }
-    .message.user  .bubble { background: #002D72; color: #fff; border-bottom-right-radius: 3px; }
-    .message.agent .bubble { background: #fff; color: #1f2937; border: 1px solid #e5e8ef; border-bottom-left-radius: 3px; }
 
     .msg-label {
       font-size: 10.5px;
@@ -202,44 +190,87 @@
     .message.user  .msg-label { text-align: right; }
     .message.agent .msg-label { text-align: left; }
 
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    .message.user  .bubble {
+      background: #002D72;
+      color: #fff;
+      border-bottom-right-radius: 3px;
+    }
+    .message.agent .bubble {
+      background: #fff;
+      color: #1f2937;
+      border: 1px solid #e4e8f0;
+      border-bottom-left-radius: 3px;
+    }
+
     /* Thinking dots */
-    .thinking { display: flex; align-items: center; gap: 4px; padding: 12px 14px; }
+    .thinking { display: flex; align-items: center; gap: 4px; padding: 4px 0; }
     .thinking span {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #93a3c0;
       animation: bounce 1.2s infinite;
     }
-    .thinking span:nth-child(2) { animation-delay: 0.2s; }
-    .thinking span:nth-child(3) { animation-delay: 0.4s; }
+    .thinking span:nth-child(2) { animation-delay: 0.18s; }
+    .thinking span:nth-child(3) { animation-delay: 0.36s; }
 
     @keyframes bounce {
       0%, 60%, 100% { transform: translateY(0); }
-      30%           { transform: translateY(-5px); }
+      30%            { transform: translateY(-5px); }
+    }
+
+    /* Error message */
+    .error-msg {
+      text-align: center;
+      font-size: 12.5px;
+      color: #dc2626;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 4px 0;
     }
 
     /* ── Footer ── */
     .chat-footer {
-      padding: 14px 20px 18px;
+      padding: 10px 12px 12px;
       background: #fff;
       border-top: 1px solid #eef0f5;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      align-items: flex-end;
       gap: 8px;
       flex-shrink: 0;
     }
-    .mode-label {
-      font-size: 11px;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      height: 14px;
+    .chat-input {
+      flex: 1;
+      border: 1.5px solid #dde2ee;
+      border-radius: 20px;
+      padding: 10px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      resize: none;
+      max-height: 110px;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+      color: #1f2937;
+      background: #f8f9fc;
     }
-    .mic-btn {
-      width: 58px;
-      height: 58px;
+    .chat-input::placeholder { color: #aab0c0; }
+    .chat-input:focus { border-color: #002D72; background: #fff; }
+    .chat-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       border: none;
       background: #002D72;
@@ -247,32 +278,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(0, 45, 114, 0.35);
-      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      flex-shrink: 0;
+      transition: background 0.2s, transform 0.15s;
     }
-    .mic-btn svg { width: 24px; height: 24px; fill: #fff; }
-    .mic-btn:hover:not(:disabled) { transform: scale(1.06); background: #003A8C; }
-    .mic-btn.listening {
-      background: #dc2626;
-      box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
-      animation: mic-ring 1.8s ease infinite;
-    }
-    @keyframes mic-ring {
-      0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
-      70%  { box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-    }
-    .mic-btn:disabled {
-      background: #d1d5db;
-      box-shadow: none;
-      cursor: not-allowed;
-      animation: none;
-    }
-
-    /* ── Stop icon (shown while active) ── */
-    .icon-stop  { display: none; }
-    .mic-btn.listening .icon-mic  { display: none; }
-    .mic-btn.listening .icon-stop { display: block; }
+    .send-btn:hover:not(:disabled) { background: #003A8C; transform: scale(1.06); }
+    .send-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+    .send-btn svg { width: 18px; height: 18px; fill: #fff; margin-left: 2px; }
 
     /* ── Mobile ── */
     @media (max-width: 480px) {
@@ -289,13 +300,17 @@
 </head>
 <body>
 
-<!-- ── Floating button ── -->
+<!-- Floating toggle button -->
 <button class="chat-toggle" id="chatToggle" aria-label="Abrir Asistente UM" aria-expanded="false">
-  <!-- Chat bubble icon -->
-  <svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
+  <svg class="icon-chat" viewBox="0 0 24 24">
+    <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
+  </svg>
+  <svg class="icon-close" viewBox="0 0 24 24">
+    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+  </svg>
 </button>
 
-<!-- ── Chat panel ── -->
+<!-- Chat panel -->
 <div class="chat-panel" id="chatPanel" role="dialog" aria-modal="true" aria-label="Asistente UM">
 
   <div class="chat-header">
@@ -304,7 +319,7 @@
       <h3>Asistente UM</h3>
       <div class="chat-status">
         <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">Listo para conversar</span>
+        <span id="statusText">Conectando...</span>
       </div>
     </div>
     <button class="chat-close" id="chatClose" aria-label="Cerrar">✕</button>
@@ -313,44 +328,42 @@
   <div class="messages" id="messages">
     <div class="welcome" id="welcome">
       <div class="welcome-icon">
-        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
       </div>
       <strong>¡Hola! Soy el Asistente UM</strong>
-      <span>Presioná el micrófono y empezá a hablar.<br>Estoy aquí para ayudarte.</span>
+      <span>Escribí tu consulta y te respondo<br>al instante.</span>
     </div>
   </div>
 
   <div class="chat-footer">
-    <div class="mode-label" id="modeLabel"></div>
-    <button class="mic-btn" id="micBtn" aria-label="Iniciar conversación">
-      <!-- Mic icon -->
-      <svg class="icon-mic" viewBox="0 0 24 24">
-        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/>
-      </svg>
-      <!-- Stop icon (square) -->
-      <svg class="icon-stop" viewBox="0 0 24 24">
-        <rect x="6" y="6" width="12" height="12" rx="2"/>
-      </svg>
+    <textarea
+      class="chat-input"
+      id="chatInput"
+      placeholder="Escribí tu mensaje..."
+      rows="1"
+      disabled
+      aria-label="Mensaje"
+    ></textarea>
+    <button class="send-btn" id="sendBtn" disabled aria-label="Enviar">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
   </div>
 
 </div>
 
-<script type="module">
-  import { Conversation } from 'https://esm.sh/@elevenlabs/client';
-
+<script>
   const chatToggle = document.getElementById('chatToggle');
   const chatPanel  = document.getElementById('chatPanel');
   const chatClose  = document.getElementById('chatClose');
-  const micBtn     = document.getElementById('micBtn');
+  const chatInput  = document.getElementById('chatInput');
+  const sendBtn    = document.getElementById('sendBtn');
   const messages   = document.getElementById('messages');
   const statusDot  = document.getElementById('statusDot');
   const statusText = document.getElementById('statusText');
-  const modeLabel  = document.getElementById('modeLabel');
-  const welcome    = document.getElementById('welcome');
 
-  let conversation = null;
+  let ws = null;
   let isOpen = false;
+  let connected = false;
 
   // ── Panel toggle ──
   function togglePanel() {
@@ -358,33 +371,30 @@
     chatPanel.classList.toggle('open', isOpen);
     chatToggle.classList.toggle('open', isOpen);
     chatToggle.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen && !ws) connect();
   }
 
   chatToggle.addEventListener('click', togglePanel);
   chatClose.addEventListener('click', togglePanel);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) togglePanel(); });
 
-  // Close on Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isOpen) togglePanel();
-  });
-
-  // ── Status helpers ──
+  // ── Status ──
   function setStatus(text, dotState) {
     statusText.textContent = text;
     statusDot.className = 'status-dot' + (dotState ? ' ' + dotState : '');
   }
 
-  // ── Message helpers ──
+  // ── Messages ──
   function removeWelcome() {
-    welcome?.remove();
+    document.getElementById('welcome')?.remove();
   }
 
   function addMessage(source, text) {
     removeWelcome();
-    const wrap = document.createElement('div');
+    const wrap   = document.createElement('div');
     wrap.className = 'message ' + source;
 
-    const label = document.createElement('div');
+    const label  = document.createElement('div');
     label.className = 'msg-label';
     label.textContent = source === 'user' ? 'Tú' : 'Asistente UM';
 
@@ -399,8 +409,16 @@
     return wrap;
   }
 
-  let thinkingEl = null;
+  function addError(text) {
+    removeWelcome();
+    const div = document.createElement('div');
+    div.className = 'error-msg';
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
 
+  let thinkingEl = null;
   function showThinking() {
     removeWelcome();
     const wrap = document.createElement('div');
@@ -426,98 +444,89 @@
     thinkingEl = null;
   }
 
-  // ── Conversation ──
-  async function startConversation() {
-    if (conversation) return;
-
-    micBtn.disabled = true;
+  // ── WebSocket ──
+  async function connect() {
     setStatus('Conectando...', 'connecting');
-    modeLabel.textContent = '';
+    chatInput.disabled = true;
+    sendBtn.disabled = true;
 
     try {
-      // Request microphone early to surface permission errors clearly
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      // Get signed URL from serverless function (keeps API key on the server)
       const res = await fetch('/api/get-signed-url');
-      if (!res.ok) throw new Error('No se pudo obtener la sesión. Verificá la configuración del servidor.');
+      if (!res.ok) throw new Error('No se pudo iniciar la sesión.');
       const { signedUrl, error } = await res.json();
       if (error) throw new Error(error);
 
-      conversation = await Conversation.startSession({
-        signedUrl,
+      ws = new WebSocket(signedUrl);
 
-        onConnect: () => {
-          setStatus('Conectado', 'active');
-          micBtn.disabled = false;
-          micBtn.classList.add('listening');
-          modeLabel.textContent = 'Escuchando...';
-        },
+      ws.addEventListener('open', () => {
+        connected = true;
+        setStatus('En línea', 'active');
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+      });
 
-        onDisconnect: () => {
-          conversation = null;
-          setStatus('Conversación finalizada', '');
-          micBtn.classList.remove('listening');
-          micBtn.disabled = false;
-          modeLabel.textContent = '';
+      ws.addEventListener('message', (event) => {
+        let data;
+        try { data = JSON.parse(event.data); } catch { return; }
+
+        // Agent text response
+        if (data.type === 'agent_response') {
+          const text = data.agent_response_event?.agent_response;
+          if (text) { hideThinking(); addMessage('agent', text); }
+        }
+
+        // Interruption (user spoke over agent)
+        if (data.type === 'interruption') {
           hideThinking();
-        },
+        }
+      });
 
-        onMessage: ({ source, message }) => {
-          if (source === 'user') {
-            hideThinking();
-            addMessage('user', message);
-            showThinking();
-          } else {
-            hideThinking();
-            addMessage('agent', message);
-          }
-        },
+      ws.addEventListener('close', () => {
+        connected = false;
+        ws = null;
+        setStatus('Desconectado', '');
+        chatInput.disabled = true;
+        sendBtn.disabled = true;
+        hideThinking();
+      });
 
-        onModeChange: ({ mode }) => {
-          if (mode === 'speaking') {
-            modeLabel.textContent = 'Respondiendo...';
-          } else {
-            modeLabel.textContent = 'Escuchando...';
-          }
-        },
-
-        onError: (msg) => {
-          console.error('ElevenLabs error:', msg);
-          addMessage('agent', '⚠️ Ocurrió un error. Por favor, intentá de nuevo.');
-          stopConversation();
-        },
+      ws.addEventListener('error', () => {
+        addError('Error de conexión. Cerrá y volvé a abrir el chat para reintentar.');
       });
 
     } catch (err) {
-      console.error(err);
-      const msg = err.name === 'NotAllowedError'
-        ? 'Se necesita permiso de micrófono para continuar.'
-        : err.message || 'Error al conectar.';
-      setStatus(msg, '');
-      micBtn.disabled = false;
+      setStatus('Error al conectar', '');
+      addError(err.message || 'No se pudo conectar con el asistente.');
     }
   }
 
-  async function stopConversation() {
-    if (!conversation) return;
-    try {
-      await conversation.endSession();
-    } catch (_) { /* already disconnected */ }
-    conversation = null;
-    micBtn.classList.remove('listening');
-    micBtn.disabled = false;
-    setStatus('Conversación finalizada', '');
-    modeLabel.textContent = '';
-    hideThinking();
+  // ── Send message ──
+  function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text || !connected) return;
+
+    addMessage('user', text);
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    showThinking();
+
+    ws.send(JSON.stringify({ user_message: text }));
   }
 
-  micBtn.addEventListener('click', () => {
-    if (conversation) {
-      stopConversation();
-    } else {
-      startConversation();
+  sendBtn.addEventListener('click', sendMessage);
+
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
+  });
+
+  // Auto-resize textarea
+  chatInput.addEventListener('input', () => {
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 110) + 'px';
   });
 </script>
 </body>
