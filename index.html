@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asistente UM</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                   'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* ── Floating toggle button ── */
+    .chat-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: #002D72;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0, 45, 114, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .chat-toggle:hover {
+      transform: scale(1.07);
+      box-shadow: 0 6px 22px rgba(0, 45, 114, 0.55);
+      background: #003A8C;
+    }
+    .chat-toggle svg { width: 28px; height: 28px; fill: #fff; transition: transform 0.3s; }
+    .chat-toggle.open svg { transform: rotate(90deg); }
+
+    /* ── Chat panel ── */
+    .chat-panel {
+      position: fixed;
+      bottom: 98px;
+      right: 24px;
+      width: 385px;
+      height: 530px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 9998;
+      opacity: 0;
+      transform: translateY(16px) scale(0.96);
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .chat-panel.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: all;
+    }
+
+    /* ── Header ── */
+    .chat-header {
+      background: linear-gradient(135deg, #002D72, #0047AB);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .chat-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .chat-header-info { flex: 1; min-width: 0; }
+    .chat-header h3 {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .chat-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .status-dot.active   { background: #4ade80; }
+    .status-dot.connecting {
+      background: #fbbf24;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.35; }
+    }
+
+    .chat-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.65);
+      cursor: pointer;
+      font-size: 20px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .chat-close:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
+
+    /* ── Messages ── */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+      background: #F6F8FC;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: #c5cfe0; border-radius: 4px; }
+
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex: 1;
+      padding: 20px;
+      gap: 10px;
+      color: #6b7280;
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+    .welcome-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #002D72, #0047AB);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .welcome-icon svg { width: 26px; height: 26px; fill: #fff; }
+    .welcome strong { color: #002D72; font-size: 15px; }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 84%;
+    }
+    .message.user  { align-self: flex-end; }
+    .message.agent { align-self: flex-start; }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+    .message.user  .bubble { background: #002D72; color: #fff; border-bottom-right-radius: 3px; }
+    .message.agent .bubble { background: #fff; color: #1f2937; border: 1px solid #e5e8ef; border-bottom-left-radius: 3px; }
+
+    .msg-label {
+      font-size: 10.5px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+    .message.user  .msg-label { text-align: right; }
+    .message.agent .msg-label { text-align: left; }
+
+    /* Thinking dots */
+    .thinking { display: flex; align-items: center; gap: 4px; padding: 12px 14px; }
+    .thinking span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #93a3c0;
+      animation: bounce 1.2s infinite;
+    }
+    .thinking span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30%           { transform: translateY(-5px); }
+    }
+
+    /* ── Footer ── */
+    .chat-footer {
+      padding: 14px 20px 18px;
+      background: #fff;
+      border-top: 1px solid #eef0f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .mode-label {
+      font-size: 11px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      height: 14px;
+    }
+    .mic-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      background: #002D72;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0, 45, 114, 0.35);
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .mic-btn svg { width: 24px; height: 24px; fill: #fff; }
+    .mic-btn:hover:not(:disabled) { transform: scale(1.06); background: #003A8C; }
+    .mic-btn.listening {
+      background: #dc2626;
+      box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
+      animation: mic-ring 1.8s ease infinite;
+    }
+    @keyframes mic-ring {
+      0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+      70%  { box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    .mic-btn:disabled {
+      background: #d1d5db;
+      box-shadow: none;
+      cursor: not-allowed;
+      animation: none;
+    }
+
+    /* ── Stop icon (shown while active) ── */
+    .icon-stop  { display: none; }
+    .mic-btn.listening .icon-mic  { display: none; }
+    .mic-btn.listening .icon-stop { display: block; }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      .chat-panel {
+        width: 100vw;
+        height: 88dvh;
+        bottom: 0;
+        right: 0;
+        border-radius: 20px 20px 0 0;
+      }
+      .chat-toggle { bottom: 20px; right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Floating button ── -->
+<button class="chat-toggle" id="chatToggle" aria-label="Abrir Asistente UM" aria-expanded="false">
+  <!-- Chat bubble icon -->
+  <svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
+</button>
+
+<!-- ── Chat panel ── -->
+<div class="chat-panel" id="chatPanel" role="dialog" aria-modal="true" aria-label="Asistente UM">
+
+  <div class="chat-header">
+    <div class="chat-avatar">UM</div>
+    <div class="chat-header-info">
+      <h3>Asistente UM</h3>
+      <div class="chat-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Listo para conversar</span>
+      </div>
+    </div>
+    <button class="chat-close" id="chatClose" aria-label="Cerrar">✕</button>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
+      </div>
+      <strong>¡Hola! Soy el Asistente UM</strong>
+      <span>Presioná el micrófono y empezá a hablar.<br>Estoy aquí para ayudarte.</span>
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <div class="mode-label" id="modeLabel"></div>
+    <button class="mic-btn" id="micBtn" aria-label="Iniciar conversación">
+      <!-- Mic icon -->
+      <svg class="icon-mic" viewBox="0 0 24 24">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/>
+      </svg>
+      <!-- Stop icon (square) -->
+      <svg class="icon-stop" viewBox="0 0 24 24">
+        <rect x="6" y="6" width="12" height="12" rx="2"/>
+      </svg>
+    </button>
+  </div>
+
+</div>
+
+<script type="module">
+  import { Conversation } from 'https://esm.sh/@elevenlabs/client';
+
+  const chatToggle = document.getElementById('chatToggle');
+  const chatPanel  = document.getElementById('chatPanel');
+  const chatClose  = document.getElementById('chatClose');
+  const micBtn     = document.getElementById('micBtn');
+  const messages   = document.getElementById('messages');
+  const statusDot  = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const modeLabel  = document.getElementById('modeLabel');
+  const welcome    = document.getElementById('welcome');
+
+  let conversation = null;
+  let isOpen = false;
+
+  // ── Panel toggle ──
+  function togglePanel() {
+    isOpen = !isOpen;
+    chatPanel.classList.toggle('open', isOpen);
+    chatToggle.classList.toggle('open', isOpen);
+    chatToggle.setAttribute('aria-expanded', String(isOpen));
+  }
+
+  chatToggle.addEventListener('click', togglePanel);
+  chatClose.addEventListener('click', togglePanel);
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) togglePanel();
+  });
+
+  // ── Status helpers ──
+  function setStatus(text, dotState) {
+    statusText.textContent = text;
+    statusDot.className = 'status-dot' + (dotState ? ' ' + dotState : '');
+  }
+
+  // ── Message helpers ──
+  function removeWelcome() {
+    welcome?.remove();
+  }
+
+  function addMessage(source, text) {
+    removeWelcome();
+    const wrap = document.createElement('div');
+    wrap.className = 'message ' + source;
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = source === 'user' ? 'Tú' : 'Asistente UM';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    wrap.appendChild(label);
+    wrap.appendChild(bubble);
+    messages.appendChild(wrap);
+    messages.scrollTop = messages.scrollHeight;
+    return wrap;
+  }
+
+  let thinkingEl = null;
+
+  function showThinking() {
+    removeWelcome();
+    const wrap = document.createElement('div');
+    wrap.className = 'message agent';
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = 'Asistente UM';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = '<div class="thinking"><span></span><span></span><span></span></div>';
+
+    wrap.appendChild(label);
+    wrap.appendChild(bubble);
+    messages.appendChild(wrap);
+    messages.scrollTop = messages.scrollHeight;
+    thinkingEl = wrap;
+  }
+
+  function hideThinking() {
+    thinkingEl?.remove();
+    thinkingEl = null;
+  }
+
+  // ── Conversation ──
+  async function startConversation() {
+    if (conversation) return;
+
+    micBtn.disabled = true;
+    setStatus('Conectando...', 'connecting');
+    modeLabel.textContent = '';
+
+    try {
+      // Request microphone early to surface permission errors clearly
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Get signed URL from serverless function (keeps API key on the server)
+      const res = await fetch('/api/get-signed-url');
+      if (!res.ok) throw new Error('No se pudo obtener la sesión. Verificá la configuración del servidor.');
+      const { signedUrl, error } = await res.json();
+      if (error) throw new Error(error);
+
+      conversation = await Conversation.startSession({
+        signedUrl,
+
+        onConnect: () => {
+          setStatus('Conectado', 'active');
+          micBtn.disabled = false;
+          micBtn.classList.add('listening');
+          modeLabel.textContent = 'Escuchando...';
+        },
+
+        onDisconnect: () => {
+          conversation = null;
+          setStatus('Conversación finalizada', '');
+          micBtn.classList.remove('listening');
+          micBtn.disabled = false;
+          modeLabel.textContent = '';
+          hideThinking();
+        },
+
+        onMessage: ({ source, message }) => {
+          if (source === 'user') {
+            hideThinking();
+            addMessage('user', message);
+            showThinking();
+          } else {
+            hideThinking();
+            addMessage('agent', message);
+          }
+        },
+
+        onModeChange: ({ mode }) => {
+          if (mode === 'speaking') {
+            modeLabel.textContent = 'Respondiendo...';
+          } else {
+            modeLabel.textContent = 'Escuchando...';
+          }
+        },
+
+        onError: (msg) => {
+          console.error('ElevenLabs error:', msg);
+          addMessage('agent', '⚠️ Ocurrió un error. Por favor, intentá de nuevo.');
+          stopConversation();
+        },
+      });
+
+    } catch (err) {
+      console.error(err);
+      const msg = err.name === 'NotAllowedError'
+        ? 'Se necesita permiso de micrófono para continuar.'
+        : err.message || 'Error al conectar.';
+      setStatus(msg, '');
+      micBtn.disabled = false;
+    }
+  }
+
+  async function stopConversation() {
+    if (!conversation) return;
+    try {
+      await conversation.endSession();
+    } catch (_) { /* already disconnected */ }
+    conversation = null;
+    micBtn.classList.remove('listening');
+    micBtn.disabled = false;
+    setStatus('Conversación finalizada', '');
+    modeLabel.textContent = '';
+    hideThinking();
+  }
+
+  micBtn.addEventListener('click', () => {
+    if (conversation) {
+      stopConversation();
+    } else {
+      startConversation();
+    }
+  });
+</script>
+</body>
+</html>
